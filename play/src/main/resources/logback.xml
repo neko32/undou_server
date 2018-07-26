@@ -1,0 +1,51 @@
+<configuration>
+
+    <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%coloredLevel %marker %logger{15} - %message%n%xException{10}</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+       <file>${APP_HOME:-/tmp/toumen}/logs/undou.log</file>
+       <immediateFlush>true</immediateFlush>
+       <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+           <providers>
+               <timestamp>
+                   <timeZone>UTC</timeZone>
+               </timestamp>
+               <arguments/>
+               <pattern>
+                   <pattern>
+                    {
+                       "service":"${SERVICE:-Nekochan}",
+                       "version":"${VERSION:-N/A}",
+                       "logger":"%logger",
+                       "thread":"%thread",
+                       "level":"%level",
+                       "message":"%message"
+                    }
+                   </pattern>
+               </pattern>
+           </providers>
+       </encoder>
+       <!-- RollingAppender specific -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>5</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+            <fileNamePattern>${APP_HOME:-/tmp/toumen}/logs/undou.log.%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+
+    <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <!--<appender-ref ref="STDOUT" />-->
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="ASYNCSTDOUT" />
+    </root>
+
+</configuration>
